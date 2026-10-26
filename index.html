@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Control Panel | minecraft.net</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: #0d1117; color: #c9d1d9; padding: 20px; }
+    .container { max-width: 800px; margin: 0 auto; }
+    h1 { color: #58a6ff; margin-bottom: 20px; border-bottom: 1px solid #30363d; padding-bottom: 10px; }
+    .card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
+    .card h2 { font-size: 1.2rem; margin-bottom: 15px; color: #f0f6fc; }
+    .field { margin-bottom: 15px; }
+    label { display: block; font-size: 0.85rem; color: #8b949e; margin-bottom: 5px; }
+    input[type="text"], input[type="password"] { width: 100%; padding: 10px; background: #0d1117; border: 1px solid #30363d; border-radius: 6px; color: #c9d1d9; font-size: 0.9rem; }
+    input[type="text"]:focus, input[type="password"]:focus { outline: none; border-color: #58a6ff; }
+    .toggle-container { display: flex; align-items: center; justify-content: space-between; }
+    .switch { position: relative; display: inline-block; width: 50px; height: 26px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #30363d; transition: .3s; border-radius: 34px; }
+    .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: .3s; border-radius: 50%; }
+    input:checked + .slider { background-color: #238636; }
+    input:checked + .slider:before { transform: translateX(24px); }
+    .btn { background: #238636; color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%; margin-top: 10px; }
+    .btn:hover { background: #2ea043; }
+    .status-msg { margin-top: 10px; font-size: 0.85rem; padding: 10px; border-radius: 6px; display: none; }
+    .status-msg.success { background: rgba(46,160,67,0.15); color: #3fb950; border: 1px solid rgba(46,160,67,0.4); }
+    .status-msg.error { background: rgba(248,81,73,0.15); color: #f85149; border: 1px solid rgba(248,81,73,0.4); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎮 Website Control Panel</h1>
+
+    <!-- 1. API Credentials Setup -->
+    <div class="card">
+      <h2>1. Security & Connection</h2>
+      <div class="field">
+        <label>GitHub Owner / Username</label>
+        <input type="text" id="repoOwner" value="gega22">
+      </div>
+      <div class="field">
+        <label>Repository Name</label>
+        <input type="text" id="repoName" value="minecraft.net">
+      </div>
+      <div class="field">
+        <label>Your GitHub Token (Personal Access Token)</label>
+        <input type="password" id="githubToken" placeholder="github_pat_...">
+      </div>
+      <button class="btn" onclick="saveSettings()">Save Key to Device</button>
+      <div id="settingsStatus" class="status-msg"></div>
+    </div>
+
+    <!-- 2. Controls -->
+    <div class="card">
+      <h2>2. Site Controls</h2>
+      <div class="field toggle-container">
+        <div>
+          <strong>Maintenance Mode</strong>
+          <p style="font-size:0.8rem; color:#8b949e;">Turn off public access to your website</p>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="maintSwitch">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="field" style="margin-top:20px;">
+        <label>Announcement Banner Message</label>
+        <input type="text" id="announceMsg" placeholder="e.g. Server maintenance scheduled for 8 PM!">
+      </div>
+
+      <button class="btn" style="background:#1f6beb;" onclick="deployToGitHub()">🚀 Push Changes Live</button>
+      <div id="deployStatus" class="status-msg"></div>
+    </div>
+  </div>
+
+  <script>
+    // Load saved settings from LocalStorage
+    document.addEventListener('DOMContentLoaded', () => {
+      if(localStorage.getItem('gh_owner')) document.getElementById('repoOwner').value = localStorage.getItem('gh_owner');
+      if(localStorage.getItem('gh_repo')) document.getElementById('repoName').value = localStorage.getItem('gh_repo');
+      if(localStorage.getItem('gh_token')) document.getElementById('githubToken').value = localStorage.getItem('gh_token');
+      
+      fetchCurrentConfig();
+    });
+
+    function saveSettings() {
+      const owner = document.getElementById('repoOwner').value.trim();
+      const repo = document.getElementById('repoName').value.trim();
+      const token = document.getElementById('githubToken').value.trim();
+
+      if(!owner || !repo || !token) {
+        showStatus('settingsStatus', 'Please fill in all fields.', false);
+        return;
+      }
+
+      localStorage.setItem('gh_owner', owner);
+      localStorage.setItem('gh_repo', repo);
+      localStorage.setItem('gh_token', token);
+      showStatus('settingsStatus', 'Key saved securely in your browser!', true);
+      fetchCurrentConfig();
+    }
+
+    let fileSha = null;
+
+    async function fetchCurrentConfig() {
+      const owner = document.getElementById('repoOwner').value.trim();
+      const repo = document.getElementById('repoName').value.trim();
+      const token = document.getElementById('githubToken').value.trim();
+
+      if (!token) return;
+
+      try {
+        const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/config.json`, {
+          headers: { 'Authorization': `token ${token}` }
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          fileSha = data.sha;
+          const content = JSON.parse(atob(data.content));
+          document.getElementById('maintSwitch').checked = !!content.maintenance;
+          document.getElementById('announceMsg').value = content.announcement || '';
+        }
+      } catch (err) {
+        console.log('No existing config file found yet.');
+      }
+    }
+
+    async function deployToGitHub() {
+      const owner = localStorage.getItem('gh_owner');
+      const repo = localStorage.getItem('gh_repo');
+      const token = localStorage.getItem('gh_token');
+
+      if (!token) {
+        showStatus('deployStatus', 'Please save your GitHub token first!', false);
+        return;
+      }
+
+      const configData = {
+        maintenance: document.getElementById('maintSwitch').checked,
+        announcement: document.getElementById('announceMsg').value
+      };
+
+      const encodedContent = btoa(JSON.stringify(configData, null, 2));
+
+      showStatus('deployStatus', 'Updating site config on GitHub...', true);
+
+      try {
+        const payload = {
+          message: "Update site status from Admin Panel",
+          content: encodedContent
+        };
+        if (fileSha) payload.sha = fileSha;
+
+        const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/config.json`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `token ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          const result = await res.json();
+          fileSha = result.content.sha;
+          showStatus('deployStatus', '✅ Successfully pushed live changes!', true);
+        } else {
+          const errData = await res.json();
+          showStatus('deployStatus', '❌ Failed: ' + (errData.message || 'Check permissions'), false);
+        }
+      } catch (err) {
+        showStatus('deployStatus', '❌ Error: ' + err.message, false);
+      }
+    }
+
+    function showStatus(elementId, msg, isSuccess) {
+      const el = document.getElementById(elementId);
+      el.innerText = msg;
+      el.className = 'status-msg ' + (isSuccess ? 'success' : 'error');
+      el.style.display = 'block';
+    }
+  </script>
+</body>
+</html>
