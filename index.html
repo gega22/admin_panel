@@ -3,81 +3,161 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Control Panel | minecraft.net</title>
+  <title>Admin Control Panel | minecraft.net</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background-color: #0d1117; color: #c9d1d9; padding: 20px; }
-    .container { max-width: 800px; margin: 0 auto; }
-    h1 { color: #58a6ff; margin-bottom: 20px; border-bottom: 1px solid #30363d; padding-bottom: 10px; }
+    .container { max-width: 850px; margin: 0 auto; }
+    h1 { color: #58a6ff; margin-bottom: 20px; border-bottom: 1px solid #30363d; padding-bottom: 10px; display: flex; align-items: center; gap: 10px; }
     .card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
-    .card h2 { font-size: 1.2rem; margin-bottom: 15px; color: #f0f6fc; }
+    .card h2 { font-size: 1.1rem; margin-bottom: 15px; color: #f0f6fc; border-bottom: 1px solid #21262d; padding-bottom: 8px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
     .field { margin-bottom: 15px; }
-    label { display: block; font-size: 0.85rem; color: #8b949e; margin-bottom: 5px; }
-    input[type="text"], input[type="password"] { width: 100%; padding: 10px; background: #0d1117; border: 1px solid #30363d; border-radius: 6px; color: #c9d1d9; font-size: 0.9rem; }
-    input[type="text"]:focus, input[type="password"]:focus { outline: none; border-color: #58a6ff; }
-    .toggle-container { display: flex; align-items: center; justify-content: space-between; }
-    .switch { position: relative; display: inline-block; width: 50px; height: 26px; }
+    label { display: block; font-size: 0.85rem; color: #8b949e; margin-bottom: 5px; font-weight: 500; }
+    input[type="text"], input[type="password"], select { width: 100%; padding: 10px; background: #0d1117; border: 1px solid #30363d; border-radius: 6px; color: #c9d1d9; font-size: 0.9rem; }
+    input:focus, select:focus { outline: none; border-color: #58a6ff; }
+    .toggle-container { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; }
+    .switch { position: relative; display: inline-block; width: 46px; height: 24px; }
     .switch input { opacity: 0; width: 0; height: 0; }
     .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #30363d; transition: .3s; border-radius: 34px; }
-    .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: .3s; border-radius: 50%; }
+    .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; transition: .3s; border-radius: 50%; }
     input:checked + .slider { background-color: #238636; }
-    input:checked + .slider:before { transform: translateX(24px); }
-    .btn { background: #238636; color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%; margin-top: 10px; }
+    input:checked + .slider:before { transform: translateX(22px); }
+    .btn { background: #238636; color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%; margin-top: 5px; font-size: 0.95rem; }
     .btn:hover { background: #2ea043; }
-    .status-msg { margin-top: 10px; font-size: 0.85rem; padding: 10px; border-radius: 6px; display: none; }
+    .btn-primary { background: #1f6beb; }
+    .btn-primary:hover { background: #388bfd; }
+    .status-msg { margin-top: 15px; font-size: 0.85rem; padding: 10px; border-radius: 6px; display: none; }
     .status-msg.success { background: rgba(46,160,67,0.15); color: #3fb950; border: 1px solid rgba(46,160,67,0.4); }
     .status-msg.error { background: rgba(248,81,73,0.15); color: #f85149; border: 1px solid rgba(248,81,73,0.4); }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>🎮 Website Control Panel</h1>
+    <h1>🎮 Website Control Center</h1>
 
-    <!-- 1. API Credentials Setup -->
+    <!-- 1. Credentials Setup -->
     <div class="card">
-      <h2>1. Security & Connection</h2>
-      <div class="field">
-        <label>GitHub Owner / Username</label>
-        <input type="text" id="repoOwner" value="gega22">
+      <h2>🔐 API Credentials</h2>
+      <div class="grid">
+        <div class="field">
+          <label>GitHub Owner / Username</label>
+          <input type="text" id="repoOwner" value="gega22">
+        </div>
+        <div class="field">
+          <label>Repository Name</label>
+          <input type="text" id="repoName" value="minecraft.net">
+        </div>
       </div>
       <div class="field">
-        <label>Repository Name</label>
-        <input type="text" id="repoName" value="minecraft.net">
+        <label>GitHub Classic Personal Access Token</label>
+        <input type="password" id="githubToken" placeholder="ghp_...">
       </div>
-      <div class="field">
-        <label>Your GitHub Token (Personal Access Token)</label>
-        <input type="password" id="githubToken" placeholder="github_pat_...">
-      </div>
-      <button class="btn" onclick="saveSettings()">Save Key to Device</button>
+      <button class="btn" onclick="saveSettings()">Save Token to Device</button>
       <div id="settingsStatus" class="status-msg"></div>
     </div>
 
-    <!-- 2. Controls -->
+    <!-- 2. System Operational Controls -->
     <div class="card">
-      <h2>2. Site Controls</h2>
-      <div class="field toggle-container">
+      <h2>🚨 Global Site Power</h2>
+      <div class="toggle-container">
         <div>
-          <strong>Maintenance Mode</strong>
-          <p style="font-size:0.8rem; color:#8b949e;">Turn off public access to your website</p>
+          <strong style="color: #f85149;">Full Maintenance Mode</strong>
+          <p style="font-size:0.8rem; color:#8b949e;">Locks the whole site behind an offline splash page</p>
         </div>
         <label class="switch">
           <input type="checkbox" id="maintSwitch">
           <span class="slider"></span>
         </label>
       </div>
+      <div class="field" style="margin-top: 10px;">
+        <label>Maintenance Message</label>
+        <input type="text" id="maintMessage" placeholder="We are currently upgrading server hardware!">
+      </div>
+    </div>
 
-      <div class="field" style="margin-top:20px;">
-        <label>Announcement Banner Message</label>
-        <input type="text" id="announceMsg" placeholder="e.g. Server maintenance scheduled for 8 PM!">
+    <!-- 3. Announcement Banner Controls -->
+    <div class="card">
+      <h2>📢 Header Announcement Bar</h2>
+      <div class="toggle-container" style="margin-bottom: 10px;">
+        <div>
+          <strong>Show Banner on Top of Site</strong>
+          <p style="font-size:0.8rem; color:#8b949e;">Displays an interactive alert bar above your header</p>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="bannerEnable">
+          <span class="slider"></span>
+        </label>
       </div>
 
-      <button class="btn" style="background:#1f6beb;" onclick="deployToGitHub()">🚀 Push Changes Live</button>
-      <div id="deployStatus" class="status-msg"></div>
+      <div class="field">
+        <label>Banner Text Message</label>
+        <input type="text" id="bannerText" placeholder="⚡ Double XP Weekend active! Join now!">
+      </div>
+
+      <div class="grid">
+        <div class="field">
+          <label>Banner Style / Color</label>
+          <select id="bannerType">
+            <option value="info">🔵 Info (Blue)</option>
+            <option value="success">🟢 Success (Green)</option>
+            <option value="warning">🟡 Warning (Yellow)</option>
+            <option value="alert">🔴 Alert (Red)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Button Label (Optional)</label>
+          <input type="text" id="bannerBtnText" placeholder="e.g. Join Discord">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Button Link URL (Optional)</label>
+        <input type="text" id="bannerBtnLink" placeholder="https://discord.gg/yourserver">
+      </div>
     </div>
+
+    <!-- 4. Minecraft Server Info -->
+    <div class="card">
+      <h2>⛏️ Server Info Widget</h2>
+      <div class="grid">
+        <div class="field">
+          <label>Server IP Address</label>
+          <input type="text" id="serverIP" placeholder="play.yourserver.net">
+        </div>
+        <div class="field">
+          <label>Player Count / Status</label>
+          <input type="text" id="playerCount" placeholder="e.g. 42 / 100 Online">
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. Feature Switches -->
+    <div class="card">
+      <h2>⚙️ Feature Switches</h2>
+      <div class="toggle-container">
+        <span>Enable Store / Buy VIP Page</span>
+        <label class="switch">
+          <input type="checkbox" id="enableStore">
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="toggle-container">
+        <span>Enable Discord Link Widget</span>
+        <label class="switch">
+          <input type="checkbox" id="enableDiscord">
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Action Button -->
+    <button class="btn btn-primary" style="padding: 14px; font-size: 1.05rem;" onclick="deployToGitHub()">🚀 Push Live Changes to Website</button>
+    <div id="deployStatus" class="status-msg"></div>
+
   </div>
 
   <script>
-    // Load saved settings from LocalStorage
     document.addEventListener('DOMContentLoaded', () => {
       if(localStorage.getItem('gh_owner')) document.getElementById('repoOwner').value = localStorage.getItem('gh_owner');
       if(localStorage.getItem('gh_repo')) document.getElementById('repoName').value = localStorage.getItem('gh_repo');
@@ -92,14 +172,14 @@
       const token = document.getElementById('githubToken').value.trim();
 
       if(!owner || !repo || !token) {
-        showStatus('settingsStatus', 'Please fill in all fields.', false);
+        showStatus('settingsStatus', 'Please fill in all credential fields.', false);
         return;
       }
 
       localStorage.setItem('gh_owner', owner);
       localStorage.setItem('gh_repo', repo);
       localStorage.setItem('gh_token', token);
-      showStatus('settingsStatus', 'Key saved securely in your browser!', true);
+      showStatus('settingsStatus', 'Saved securely in your browser!', true);
       fetchCurrentConfig();
     }
 
@@ -120,12 +200,25 @@
         if (res.ok) {
           const data = await res.json();
           fileSha = data.sha;
-          const content = JSON.parse(atob(data.content));
-          document.getElementById('maintSwitch').checked = !!content.maintenance;
-          document.getElementById('announceMsg').value = content.announcement || '';
+          const config = JSON.parse(atob(data.content));
+          
+          document.getElementById('maintSwitch').checked = !!config.maintenance;
+          document.getElementById('maintMessage').value = config.maintenanceMessage || '';
+          
+          document.getElementById('bannerEnable').checked = !!config.banner?.enabled;
+          document.getElementById('bannerText').value = config.banner?.text || '';
+          document.getElementById('bannerType').value = config.banner?.type || 'info';
+          document.getElementById('bannerBtnText').value = config.banner?.buttonText || '';
+          document.getElementById('bannerBtnLink').value = config.banner?.buttonLink || '';
+          
+          document.getElementById('serverIP').value = config.serverIP || '';
+          document.getElementById('playerCount').value = config.playerCount || '';
+
+          document.getElementById('enableStore').checked = !!config.features?.store;
+          document.getElementById('enableDiscord').checked = !!config.features?.discord;
         }
       } catch (err) {
-        console.log('No existing config file found yet.');
+        console.log('No config file found yet.');
       }
     }
 
@@ -141,16 +234,29 @@
 
       const configData = {
         maintenance: document.getElementById('maintSwitch').checked,
-        announcement: document.getElementById('announceMsg').value
+        maintenanceMessage: document.getElementById('maintMessage').value,
+        banner: {
+          enabled: document.getElementById('bannerEnable').checked,
+          text: document.getElementById('bannerText').value,
+          type: document.getElementById('bannerType').value,
+          buttonText: document.getElementById('bannerBtnText').value,
+          buttonLink: document.getElementById('bannerBtnLink').value
+        },
+        serverIP: document.getElementById('serverIP').value,
+        playerCount: document.getElementById('playerCount').value,
+        features: {
+          store: document.getElementById('enableStore').checked,
+          discord: document.getElementById('enableDiscord').checked
+        }
       };
 
-      const encodedContent = btoa(JSON.stringify(configData, null, 2));
+      const encodedContent = btoa(unescape(encodeURIComponent(JSON.stringify(configData, null, 2))));
 
-      showStatus('deployStatus', 'Updating site config on GitHub...', true);
+      showStatus('deployStatus', 'Pushing configuration to GitHub...', true);
 
       try {
         const payload = {
-          message: "Update site status from Admin Panel",
+          message: "Update site configuration from Admin Panel",
           content: encodedContent
         };
         if (fileSha) payload.sha = fileSha;
@@ -167,7 +273,7 @@
         if (res.ok) {
           const result = await res.json();
           fileSha = result.content.sha;
-          showStatus('deployStatus', '✅ Successfully pushed live changes!', true);
+          showStatus('deployStatus', '✅ Successfully deployed changes live!', true);
         } else {
           const errData = await res.json();
           showStatus('deployStatus', '❌ Failed: ' + (errData.message || 'Check permissions'), false);
