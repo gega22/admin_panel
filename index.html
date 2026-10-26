@@ -3,45 +3,79 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Control Panel | minecraft.net</title>
+  <title>Console | Site Management</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: #0d1117; color: #c9d1d9; padding: 20px; }
-    .container { max-width: 850px; margin: 0 auto; }
-    h1 { color: #58a6ff; margin-bottom: 20px; border-bottom: 1px solid #30363d; padding-bottom: 10px; display: flex; align-items: center; gap: 10px; }
-    .card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
-    .card h2 { font-size: 1.1rem; margin-bottom: 15px; color: #f0f6fc; border-bottom: 1px solid #21262d; padding-bottom: 8px; }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-    .field { margin-bottom: 15px; }
-    label { display: block; font-size: 0.85rem; color: #8b949e; margin-bottom: 5px; font-weight: 500; }
-    input[type="text"], input[type="password"], select { width: 100%; padding: 10px; background: #0d1117; border: 1px solid #30363d; border-radius: 6px; color: #c9d1d9; font-size: 0.9rem; }
-    input:focus, select:focus { outline: none; border-color: #58a6ff; }
-    .toggle-container { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; }
-    .switch { position: relative; display: inline-block; width: 46px; height: 24px; }
+    :root {
+      --bg: #090d16;
+      --card-bg: #111726;
+      --border: #1e293b;
+      --border-focus: #3b82f6;
+      --text: #f1f5f9;
+      --text-muted: #64748b;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --danger: #ef4444;
+      --success: #10b981;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); padding: 32px 16px; min-height: 100vh; }
+    .wrapper { max-width: 680px; margin: 0 auto; }
+    
+    header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+    header h1 { font-size: 1.25rem; font-weight: 700; tracking: -0.02em; letter-spacing: -0.5px; }
+    .badge { font-size: 0.75rem; background: #1e293b; color: #94a3b8; padding: 4px 10px; border-radius: 9999px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    .panel { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+    .panel-title { font-size: 0.95rem; font-weight: 600; color: #cbd5e1; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.75rem; color: var(--text-muted); }
+
+    .field { margin-bottom: 16px; }
+    .field:last-child { margin-bottom: 0; }
+    label { display: block; font-size: 0.85rem; font-weight: 500; color: #94a3b8; margin-bottom: 6px; }
+    input[type="text"], input[type="password"], select {
+      width: 100%; padding: 10px 14px; background: #0b0f19; border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 0.9rem; transition: border-color 0.15s ease;
+    }
+    input:focus, select:focus { outline: none; border-color: var(--border-focus); }
+    
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    /* Switch styling */
+    .control-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .control-info strong { font-size: 0.95rem; font-weight: 600; display: block; }
+    .control-info p { font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; }
+
+    .switch { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; }
     .switch input { opacity: 0; width: 0; height: 0; }
-    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #30363d; transition: .3s; border-radius: 34px; }
-    .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; transition: .3s; border-radius: 50%; }
-    input:checked + .slider { background-color: #238636; }
-    input:checked + .slider:before { transform: translateX(22px); }
-    .btn { background: #238636; color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%; margin-top: 5px; font-size: 0.95rem; }
-    .btn:hover { background: #2ea043; }
-    .btn-primary { background: #1f6beb; }
-    .btn-primary:hover { background: #388bfd; }
-    .status-msg { margin-top: 15px; font-size: 0.85rem; padding: 10px; border-radius: 6px; display: none; }
-    .status-msg.success { background: rgba(46,160,67,0.15); color: #3fb950; border: 1px solid rgba(46,160,67,0.4); }
-    .status-msg.error { background: rgba(248,81,73,0.15); color: #f85149; border: 1px solid rgba(248,81,73,0.4); }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #1e293b; transition: .2s; border-radius: 24px; }
+    .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: #94a3b8; transition: .2s; border-radius: 50%; }
+    input:checked + .slider { background-color: var(--accent); }
+    input:checked + .slider:before { transform: translateX(20px); background-color: #ffffff; }
+
+    /* Buttons & Feedback */
+    .btn { background: var(--accent); color: #fff; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem; width: 100%; transition: background 0.15s ease; }
+    .btn:hover { background: var(--accent-hover); }
+    .btn-secondary { background: #1e293b; color: #cbd5e1; }
+    .btn-secondary:hover { background: #334155; }
+
+    .status { margin-top: 12px; font-size: 0.85rem; padding: 12px; border-radius: 6px; display: none; }
+    .status.success { background: rgba(16, 185, 129, 0.1); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.2); }
+    .status.error { background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2); }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>🎮 Website Control Center</h1>
 
-    <!-- 1. Credentials Setup -->
-    <div class="card">
-      <h2>🔐 API Credentials</h2>
-      <div class="grid">
+  <div class="wrapper">
+    <header>
+      <h1>Site Control Console</h1>
+      <span class="badge">gega22 / minecraft.net</span>
+    </header>
+
+    <!-- 1. Credentials Section -->
+    <div class="panel">
+      <div class="panel-title">Authentication</div>
+      <div class="grid" style="margin-bottom: 12px;">
         <div class="field">
-          <label>GitHub Owner / Username</label>
+          <label>GitHub Username</label>
           <input type="text" id="repoOwner" value="gega22">
         </div>
         <div class="field">
@@ -50,142 +84,107 @@
         </div>
       </div>
       <div class="field">
-        <label>GitHub Classic Personal Access Token</label>
+        <label>Personal Access Token (Classic)</label>
         <input type="password" id="githubToken" placeholder="ghp_...">
       </div>
-      <button class="btn" onclick="saveSettings()">Save Token to Device</button>
-      <div id="settingsStatus" class="status-msg"></div>
+      <button class="btn btn-secondary" style="margin-top: 8px;" onclick="saveCredentials()">Save Credentials</button>
+      <div id="authStatus" class="status"></div>
     </div>
 
-    <!-- 2. System Operational Controls -->
-    <div class="card">
-      <h2>🚨 Global Site Power</h2>
-      <div class="toggle-container">
-        <div>
-          <strong style="color: #f85149;">Full Maintenance Mode</strong>
-          <p style="font-size:0.8rem; color:#8b949e;">Locks the whole site behind an offline splash page</p>
+    <!-- 2. Maintenance Control -->
+    <div class="panel">
+      <div class="panel-title">System Status</div>
+      <div class="control-row">
+        <div class="control-info">
+          <strong>Maintenance Mode</strong>
+          <p>Redirects all incoming visitors to a downtime splash screen</p>
         </div>
         <label class="switch">
           <input type="checkbox" id="maintSwitch">
           <span class="slider"></span>
         </label>
       </div>
-      <div class="field" style="margin-top: 10px;">
-        <label>Maintenance Message</label>
-        <input type="text" id="maintMessage" placeholder="We are currently upgrading server hardware!">
+      <div class="field" style="margin-top: 16px;">
+        <label>Downtime Notice Text</label>
+        <input type="text" id="maintMsg" placeholder="We are performing scheduled updates. Back shortly!">
       </div>
     </div>
 
-    <!-- 3. Announcement Banner Controls -->
-    <div class="card">
-      <h2>📢 Header Announcement Bar</h2>
-      <div class="toggle-container" style="margin-bottom: 10px;">
-        <div>
-          <strong>Show Banner on Top of Site</strong>
-          <p style="font-size:0.8rem; color:#8b949e;">Displays an interactive alert bar above your header</p>
+    <!-- 3. Announcement Banner -->
+    <div class="panel">
+      <div class="panel-title">Top Announcement Bar</div>
+      <div class="control-row" style="margin-bottom: 16px;">
+        <div class="control-info">
+          <strong>Enable Banner</strong>
+          <p>Display an alert bar pinned across the top of your site</p>
         </div>
         <label class="switch">
-          <input type="checkbox" id="bannerEnable">
+          <input type="checkbox" id="bannerSwitch">
           <span class="slider"></span>
         </label>
       </div>
 
       <div class="field">
-        <label>Banner Text Message</label>
-        <input type="text" id="bannerText" placeholder="⚡ Double XP Weekend active! Join now!">
+        <label>Banner Text</label>
+        <input type="text" id="bannerText" placeholder="New update released! Check out the changes below.">
       </div>
 
       <div class="grid">
         <div class="field">
-          <label>Banner Style / Color</label>
-          <select id="bannerType">
-            <option value="info">🔵 Info (Blue)</option>
-            <option value="success">🟢 Success (Green)</option>
-            <option value="warning">🟡 Warning (Yellow)</option>
-            <option value="alert">🔴 Alert (Red)</option>
+          <label>Color Theme</label>
+          <select id="bannerStyle">
+            <option value="info">Blue (Info)</option>
+            <option value="warning">Yellow (Warning)</option>
+            <option value="alert">Red (Critical)</option>
+            <option value="success">Green (Success)</option>
           </select>
         </div>
         <div class="field">
           <label>Button Label (Optional)</label>
-          <input type="text" id="bannerBtnText" placeholder="e.g. Join Discord">
+          <input type="text" id="bannerBtnText" placeholder="e.g. Read More">
         </div>
       </div>
 
       <div class="field">
         <label>Button Link URL (Optional)</label>
-        <input type="text" id="bannerBtnLink" placeholder="https://discord.gg/yourserver">
+        <input type="text" id="bannerBtnLink" placeholder="https://">
       </div>
     </div>
 
-    <!-- 4. Minecraft Server Info -->
-    <div class="card">
-      <h2>⛏️ Server Info Widget</h2>
-      <div class="grid">
-        <div class="field">
-          <label>Server IP Address</label>
-          <input type="text" id="serverIP" placeholder="play.yourserver.net">
-        </div>
-        <div class="field">
-          <label>Player Count / Status</label>
-          <input type="text" id="playerCount" placeholder="e.g. 42 / 100 Online">
-        </div>
-      </div>
-    </div>
-
-    <!-- 5. Feature Switches -->
-    <div class="card">
-      <h2>⚙️ Feature Switches</h2>
-      <div class="toggle-container">
-        <span>Enable Store / Buy VIP Page</span>
-        <label class="switch">
-          <input type="checkbox" id="enableStore">
-          <span class="slider"></span>
-        </label>
-      </div>
-      <div class="toggle-container">
-        <span>Enable Discord Link Widget</span>
-        <label class="switch">
-          <input type="checkbox" id="enableDiscord">
-          <span class="slider"></span>
-        </label>
-      </div>
-    </div>
-
-    <!-- Action Button -->
-    <button class="btn btn-primary" style="padding: 14px; font-size: 1.05rem;" onclick="deployToGitHub()">🚀 Push Live Changes to Website</button>
-    <div id="deployStatus" class="status-msg"></div>
-
+    <!-- Commit Action -->
+    <button class="btn" onclick="publishChanges()">Publish Configuration</button>
+    <div id="publishStatus" class="status"></div>
   </div>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      if(localStorage.getItem('gh_owner')) document.getElementById('repoOwner').value = localStorage.getItem('gh_owner');
-      if(localStorage.getItem('gh_repo')) document.getElementById('repoName').value = localStorage.getItem('gh_repo');
-      if(localStorage.getItem('gh_token')) document.getElementById('githubToken').value = localStorage.getItem('gh_token');
+      if (localStorage.getItem('gh_owner')) document.getElementById('repoOwner').value = localStorage.getItem('gh_owner');
+      if (localStorage.getItem('gh_repo')) document.getElementById('repoName').value = localStorage.getItem('gh_repo');
+      if (localStorage.getItem('gh_token')) document.getElementById('githubToken').value = localStorage.getItem('gh_token');
       
-      fetchCurrentConfig();
+      loadConfig();
     });
 
-    function saveSettings() {
+    function saveCredentials() {
       const owner = document.getElementById('repoOwner').value.trim();
       const repo = document.getElementById('repoName').value.trim();
       const token = document.getElementById('githubToken').value.trim();
 
-      if(!owner || !repo || !token) {
-        showStatus('settingsStatus', 'Please fill in all credential fields.', false);
+      if (!owner || !repo || !token) {
+        showFeedback('authStatus', 'All authentication fields are required.', false);
         return;
       }
 
       localStorage.setItem('gh_owner', owner);
       localStorage.setItem('gh_repo', repo);
       localStorage.setItem('gh_token', token);
-      showStatus('settingsStatus', 'Saved securely in your browser!', true);
-      fetchCurrentConfig();
+      showFeedback('authStatus', 'Credentials saved to local storage.', true);
+      loadConfig();
     }
 
-    let fileSha = null;
+    let currentSha = null;
 
-    async function fetchCurrentConfig() {
+    async function loadConfig() {
       const owner = document.getElementById('repoOwner').value.trim();
       const repo = document.getElementById('repoName').value.trim();
       const token = document.getElementById('githubToken').value.trim();
@@ -199,67 +198,54 @@
 
         if (res.ok) {
           const data = await res.json();
-          fileSha = data.sha;
+          currentSha = data.sha;
           const config = JSON.parse(atob(data.content));
-          
+
           document.getElementById('maintSwitch').checked = !!config.maintenance;
-          document.getElementById('maintMessage').value = config.maintenanceMessage || '';
-          
-          document.getElementById('bannerEnable').checked = !!config.banner?.enabled;
+          document.getElementById('maintMsg').value = config.maintenanceNotice || '';
+
+          document.getElementById('bannerSwitch').checked = !!config.banner?.active;
           document.getElementById('bannerText').value = config.banner?.text || '';
-          document.getElementById('bannerType').value = config.banner?.type || 'info';
+          document.getElementById('bannerStyle').value = config.banner?.style || 'info';
           document.getElementById('bannerBtnText').value = config.banner?.buttonText || '';
           document.getElementById('bannerBtnLink').value = config.banner?.buttonLink || '';
-          
-          document.getElementById('serverIP').value = config.serverIP || '';
-          document.getElementById('playerCount').value = config.playerCount || '';
-
-          document.getElementById('enableStore').checked = !!config.features?.store;
-          document.getElementById('enableDiscord').checked = !!config.features?.discord;
         }
       } catch (err) {
-        console.log('No config file found yet.');
+        console.log('No current config found.');
       }
     }
 
-    async function deployToGitHub() {
+    async function publishChanges() {
       const owner = localStorage.getItem('gh_owner');
       const repo = localStorage.getItem('gh_repo');
       const token = localStorage.getItem('gh_token');
 
       if (!token) {
-        showStatus('deployStatus', 'Please save your GitHub token first!', false);
+        showFeedback('publishStatus', 'Save a valid GitHub token before publishing.', false);
         return;
       }
 
-      const configData = {
+      const payload = {
         maintenance: document.getElementById('maintSwitch').checked,
-        maintenanceMessage: document.getElementById('maintMessage').value,
+        maintenanceNotice: document.getElementById('maintMsg').value,
         banner: {
-          enabled: document.getElementById('bannerEnable').checked,
+          active: document.getElementById('bannerSwitch').checked,
           text: document.getElementById('bannerText').value,
-          type: document.getElementById('bannerType').value,
+          style: document.getElementById('bannerStyle').value,
           buttonText: document.getElementById('bannerBtnText').value,
           buttonLink: document.getElementById('bannerBtnLink').value
-        },
-        serverIP: document.getElementById('serverIP').value,
-        playerCount: document.getElementById('playerCount').value,
-        features: {
-          store: document.getElementById('enableStore').checked,
-          discord: document.getElementById('enableDiscord').checked
         }
       };
 
-      const encodedContent = btoa(unescape(encodeURIComponent(JSON.stringify(configData, null, 2))));
-
-      showStatus('deployStatus', 'Pushing configuration to GitHub...', true);
+      const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(payload, null, 2))));
+      showFeedback('publishStatus', 'Pushing updates to GitHub...', true);
 
       try {
-        const payload = {
-          message: "Update site configuration from Admin Panel",
-          content: encodedContent
+        const body = {
+          message: "Update site configuration",
+          content: encoded
         };
-        if (fileSha) payload.sha = fileSha;
+        if (currentSha) body.sha = currentSha;
 
         const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/config.json`, {
           method: 'PUT',
@@ -267,26 +253,26 @@
             'Authorization': `token ${token}`,
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(body)
         });
 
         if (res.ok) {
           const result = await res.json();
-          fileSha = result.content.sha;
-          showStatus('deployStatus', '✅ Successfully deployed changes live!', true);
+          currentSha = result.content.sha;
+          showFeedback('publishStatus', 'Changes published successfully.', true);
         } else {
-          const errData = await res.json();
-          showStatus('deployStatus', '❌ Failed: ' + (errData.message || 'Check permissions'), false);
+          const err = await res.json();
+          showFeedback('publishStatus', 'Publish failed: ' + (err.message || 'Permission denied'), false);
         }
-      } catch (err) {
-        showStatus('deployStatus', '❌ Error: ' + err.message, false);
+      } catch (e) {
+        showFeedback('publishStatus', 'Error: ' + e.message, false);
       }
     }
 
-    function showStatus(elementId, msg, isSuccess) {
-      const el = document.getElementById(elementId);
-      el.innerText = msg;
-      el.className = 'status-msg ' + (isSuccess ? 'success' : 'error');
+    function showFeedback(id, text, isSuccess) {
+      const el = document.getElementById(id);
+      el.innerText = text;
+      el.className = 'status ' + (isSuccess ? 'success' : 'error');
       el.style.display = 'block';
     }
   </script>
